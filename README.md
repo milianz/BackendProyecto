@@ -1,45 +1,69 @@
-# Documentación de la API de Ventas de Propiedades
+# Documentación de la API de InmoMarket
 
-Base URL: `http://localhost:3000/api/v1`
+Base URL: `https://inmomarket.me/api/v1`
 
 ## Autenticación
 
 ### Iniciar sesión con Google
+
 - **URL**: `/auth/google`
 - **Método**: `GET`
 - **Descripción**: Inicia el proceso de autenticación con Google OAuth.
-- **Caso de uso**: Un usuario hace clic en "Iniciar sesión con Google" en la aplicación.
+- **Uso**: Redirige al usuario a la página de inicio de sesión de Google.
 
 ### Callback de Google
+
 - **URL**: `/auth/google/callback`
 - **Método**: `GET`
 - **Descripción**: Maneja la respuesta de autenticación de Google.
-- **Caso de uso**: Google redirige al usuario a esta URL después de una autenticación exitosa.
+- **Uso**: Google redirige a esta URL después de una autenticación exitosa.
 
 ### Verificar autenticación
+
 - **URL**: `/auth/check`
 - **Método**: `GET`
 - **Descripción**: Verifica si el usuario está autenticado.
-- **Caso de uso**: La aplicación verifica el estado de autenticación del usuario al cargar.
+- **Respuesta**:
+  ```json
+  {
+    "authenticated": true,
+    "user": {
+      "id": "user_id",
+      "name": "User Name",
+      "email": "user@example.com"
+    }
+  }
+  ```
 
 ### Cerrar sesión
+
 - **URL**: `/auth/logout`
 - **Método**: `GET`
 - **Descripción**: Cierra la sesión del usuario.
-- **Caso de uso**: Un usuario hace clic en "Cerrar sesión" en la aplicación.
+- **Respuesta**: Redirige al usuario a la página principal.
 
 ## Usuarios
 
 ### Obtener información del usuario
+
 - **URL**: `/users/me`
 - **Método**: `GET`
 - **Autenticación**: Requerida
 - **Descripción**: Obtiene la información del usuario autenticado.
-- **Caso de uso**: La aplicación carga el perfil del usuario después de iniciar sesión.
+- **Respuesta**:
+  ```json
+  {
+    "id": "user_id",
+    "name": "User Name",
+    "email": "user@example.com",
+    "role": "user"
+  }
+  ```
 
 ## Publicaciones
 
 ### Crear una publicación
+
 - **URL**: `/publications/create`
 - **Método**: `POST`
 - **Autenticación**: Requerida
@@ -63,78 +87,85 @@ Base URL: `http://localhost:3000/api/v1`
     "propertyPrice": "250000"
   }
   ```
-- **Descripción**: Crea una nueva publicación de propiedad.
-- **Caso de uso**: Un usuario publica una nueva propiedad para venta.
+- **Respuesta**: Detalles de la publicación creada.
 
 ### Modificar una publicación
+
 - **URL**: `/publications/:publicationId`
 - **Método**: `PUT`
 - **Autenticación**: Requerida
-- **Body**: Similar al de crear publicación, pero solo con los campos a actualizar.
-- **Descripción**: Modifica una publicación existente del usuario.
-- **Caso de uso**: Un usuario actualiza el precio o la descripción de su propiedad publicada.
+- **Parámetros**: `publicationId` - ID de la publicación a modificar
+- **Body**: Similar al de crear publicación, con los campos a actualizar.
+- **Respuesta**: Detalles de la publicación actualizada.
 
 ### Eliminar una publicación
+
 - **URL**: `/publications/:publicationId`
 - **Método**: `DELETE`
 - **Autenticación**: Requerida
-- **Descripción**: Elimina una publicación del usuario.
-- **Caso de uso**: Un usuario decide retirar su propiedad del mercado.
+- **Parámetros**: `publicationId` - ID de la publicación a eliminar
+- **Respuesta**: Confirmación de eliminación.
 
 ## Denuncias
 
 ### Denunciar una publicación
+
 - **URL**: `/reports/:publicationId`
 - **Método**: `POST`
 - **Autenticación**: Requerida
+- **Parámetros**: `publicationId` - ID de la publicación a denunciar
 - **Body**:
   ```json
   {
     "reason": "Información falsa"
   }
   ```
-- **Descripción**: Permite a un usuario denunciar una publicación.
-- **Caso de uso**: Un usuario encuentra información incorrecta o inapropiada en una publicación.
+- **Respuesta**: Confirmación de denuncia registrada.
 
 ## Administración
 
-### Obtener todos los usuarios
+### Obtener todos los usuarios (Admin)
+
 - **URL**: `/admin/users`
 - **Método**: `GET`
 - **Autenticación**: Requerida (Admin)
 - **Descripción**: Obtiene una lista de todos los usuarios registrados.
-- **Caso de uso**: Un administrador revisa la lista de usuarios de la plataforma.
+- **Respuesta**: Lista de usuarios.
 
-### Eliminar un usuario
+### Eliminar un usuario (Admin)
+
 - **URL**: `/admin/users/:userId`
 - **Método**: `DELETE`
 - **Autenticación**: Requerida (Admin)
-- **Descripción**: Elimina un usuario específico.
-- **Caso de uso**: Un administrador elimina una cuenta de usuario problemática.
+- **Parámetros**: `userId` - ID del usuario a eliminar
+- **Respuesta**: Confirmación de eliminación.
 
-### Obtener publicaciones denunciadas
+### Obtener publicaciones denunciadas (Admin)
+
 - **URL**: `/admin/reported-publications`
 - **Método**: `GET`
 - **Autenticación**: Requerida (Admin)
 - **Descripción**: Obtiene una lista de publicaciones que han sido denunciadas.
-- **Caso de uso**: Un administrador revisa las publicaciones que han recibido denuncias.
+- **Respuesta**: Lista de publicaciones denunciadas.
 
-### Cambiar estado de una publicación
+### Cambiar estado de una publicación (Admin)
+
 - **URL**: `/admin/publications/:publicationId/status`
 - **Método**: `PATCH`
 - **Autenticación**: Requerida (Admin)
+- **Parámetros**: `publicationId` - ID de la publicación
 - **Body**:
   ```json
   {
     "status": "inactive"
   }
   ```
-- **Descripción**: Cambia el estado de una publicación (active, inactive, rejected).
-- **Caso de uso**: Un administrador desactiva una publicación después de revisar una denuncia.
+- **Respuesta**: Detalles de la publicación actualizada.
 
 ## Notas adicionales
 
-- Todas las rutas autenticadas requieren un token JWT válido en el header de la solicitud:
+- Todas las rutas requieren HTTPS.
+- Las solicitudes que involucran autenticación deben incluir un token JWT válido en el header de la solicitud:
   ```
   Authorization: Bearer <token>
   ```
